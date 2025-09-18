@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chain of Responsibility – Deck</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/black.css" id="theme">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/monokai.css">
+  <style>
+    .footnote { font-size:.75rem; opacity:.8 }
+    .two-col { display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; align-items:start }
+    .pill { display:inline-block; padding:.25em .6em; border-radius:999px; background:#444; color:#fff; font-size:.7em; margin-right:.35em }
+
+    /* Pre: Breite wie gehabt, nur EINE Scrollbar am <pre> */
+    .reveal pre { width:95%; max-width:none; margin:0 auto; overflow:auto; }
+    .reveal pre code { font-size:.8em; line-height:1.4; white-space:pre; overflow:visible; } /* kein zweites Scrollen */
+
+    /* Start-Button */
+    .back { position: fixed; top: 12px; left: 12px; font-size:.8rem; z-index: 9999; }
+    .back a { color:#fff; text-decoration:none; border:1px solid #444; padding:.25rem .5rem; border-radius:8px; background:rgba(0,0,0,.35); }
+
+    /* Codeslide: Grid → Codebereich streckt sich; unten sichtbarer Abstand */
+    section.code-taller {
+      display: grid;
+      grid-template-rows: auto auto 1fr; /* H3, footnote, Codebereich */
+      row-gap: .25rem;
+    }
+    section.code-taller .code-wrap {
+      /* nimmt den restlichen Platz der Slide ein */
+      min-height: 0;              /* wichtig, sonst kann das Kind nicht schrumpfen */
+      padding-bottom: 1.25rem;    /* sichtbarer Abstand zum unteren Rand */
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+    }
+    section.code-taller .code-wrap pre {
+      flex: 1 1 auto;   /* füllt verbleibenden Platz */
+      min-height: 0;    /* erlaubt echtes Scrollen im pre */
+      margin: 0 auto;   /* behält die 95%-Breite via .reveal pre */
+    }
+  </style>
+</head>
+<body>
+  <div class="back"><a href="index.html" id="back-link">← Start</a></div>
+  <div class="reveal">
+    <div class="slides">
+
+      <section>
+        <h3>Chain of Responsibility</h3>
+        <h4>(auch „Chain of Command“)</h4>
+        <ul>
+          <li>Request wandert entlang einer Handler-Kette.</li>
+          <li>Sender ist vom Empfänger entkoppelt.</li>
+          <li>Handler sind austauschbar/erweiterbar.</li>
+        </ul>
+        <p class="footnote">Ziel: Flexible Zuständigkeitsprüfung ohne if/else-Leitern</p>
+      </section>
+
+      <section>
+        <h3>Struktur</h3>
+        <div class="two-col">
+          <div>
+            <ul>
+              <li><span class="pill">Handler</span> definiert <code>Handle()</code> & Verweis auf <em>Next</em></li>
+              <li><span class="pill">ConcreteHandler</span> verarbeitet oder leitet weiter</li>
+              <li><span class="pill">Client</span> stößt Anfrage an</li>
+            </ul>
+          </div>
+          <div>
+            <pre><code data-trim class="nohighlight">Client → Handler A → Handler B → Handler C
+   (bearbeitet?)   nein →     nein →    ja ✓</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h3>Ablauf</h3>
+        <ol>
+          <li>Client erstellt Anfrage (Event, Ticket, Command).</li>
+          <li>Aktueller Handler prüft Zuständigkeit (<em>CanHandle</em>).</li>
+          <li>Wenn ungeeignet: Weiterleitung an <code>Next</code>.</li>
+          <li>Ende: verarbeitet <em>oder</em> Kette erschöpft → Fallback/Fehler.</li>
+        </ol>
+      </section>
+
+      <!-- Codeslide: stretchender Codebereich, sichtbarer Unterrand, keine abgeschnittenen Zeilen -->
+      <section class="code-taller">
+        <h3>Beispiel (C#)</h3>
+        <p class="footnote">Demo-Kette: Logging → Auth → Business Rules</p>
+        <div class="code-wrap">
+<pre><code class="language-csharp" data-line-numbers>
+public class Request
+{
+    public string Type { get; set; }
+    public string UserRole { get; set; }
+    public object Payload { get; set; }
+}
+
+abstract class Handler
+{
+    protected Handler Next;
+
+    public Handler SetNext(Handler next)
+    {
+        Next = next;
+        return next;
+    }
+
+    public void Handle(Request req)
+    {
+        if (CanHandle(req))
+        {
+            Process(req);
+        }
+        else
+        {
+            Next?.Handle(req);
+        }
+    }
+
+    protected abstract bool CanHandle(Request req);
+    protected abstract void Process(Request req);
+}
+
+class LogHandler : Handler
+{
+    protected override bool CanHandle(Request r) => true;
+
+    protected override void Process(Request r)
+    {
+        Console.WriteLine($"[LOG] {r.Type}");
+        Next?.Handle(r);
+    }
+}
+
+class AuthHandler : Handler
+{
+    protected override bool CanHandle(Request r) => r.Type != "public";
+
+    protected override void Process(Request r)
+    {
+        if (r.UserRole == "admin")
+        {
+            Console.WriteLine("Auth ok");
+            Next?.Handle(r);
+        }
+        else
+        {
+            Console.WriteLine("401");
+        }
+    }
+}
+
+class BusinessHandler : Handler
+{
+    protected override bool CanHandle(Request r) => r.Type == "order";
+
+    protected override void Process(Request r)
+    {
+        Console.WriteLine($"Order verarbeitet: {r.Payload}");
+    }
+}
+
+// Setup
+var chain = new LogHandler();
+chain.SetNext(new AuthHandler()).SetNext(new BusinessHandler());
+
+chain.Handle(new Request { Type = "order", UserRole = "admin", Payload = 42 });
+chain.Handle(new Request { Type = "order", UserRole = "guest" });
+chain.Handle(new Request { Type = "public", Payload = "ping" });
+</code></pre>
+        </div>
+      </section>
+
+      <section>
+        <h3>Vorteile & Nachteile</h3>
+        <div class="two-col">
+          <div>
+            <h4>Vorteile</h4>
+            <ul>
+              <li>Lose Kopplung von Sender & Empfänger</li>
+              <li>Open/Closed: neue Handler ohne Client-Anpassung</li>
+              <li>Hohe Wiederverwendbarkeit & Testbarkeit</li>
+            </ul>
+          </div>
+          <div>
+            <h4>Nachteile</h4>
+            <ul>
+              <li>Debugging schwieriger (verteilte Verantwortung)</li>
+              <li>Niemand zuständig? → Fallback/Default-Handler nötig</li>
+              <li>Performance: tiefe Ketten kosten Laufzeit</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h3>Wann einsetzen? • Best Practices</h3>
+        <ul>
+          <li>GUI-Events (Bubbling), Middleware-Pipelines</li>
+          <li>Validierung & Regelwerke (z. B. Form-Checks)</li>
+          <li>Support-/Freigabe-Workflows & Eskalationen</li>
+          <li>Request-Filter: Logging → Auth → RateLimit → Business</li>
+          <li><strong>Best Practices:</strong> Default-Handler, kleine Klassen, konfigurierbare Kette, Monitoring/Tracing</li>
+        </ul>
+      </section>
+
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/highlight.js"></script>
+  <script>
+    const deck = new Reveal({ hash:true, slideNumber:true, transition:'slide', width:1280, height:720 });
+    deck.initialize({ plugins:[RevealHighlight] });
+
+    // Fallback für den Start-Button
+    document.getElementById('back-link')?.addEventListener('click', function (e) {
+      e.preventDefault();
+      window.location.href = 'index.html';
+    });
+  </script>
+</body>
+</html>
