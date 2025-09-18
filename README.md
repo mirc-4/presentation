@@ -1,2 +1,2 @@
 # presentation
-Präsentiation über Design Patterns mit reveal js
+Präsentation über Design Patterns mit reveal js
