@@ -210,9 +210,10 @@ chain.Handle(new Request { Type = "public", Payload = "ping" });
   </div>
   <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/highlight.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/notes/notes.js"></script>
   <script>
     const deck = new Reveal({ hash:true, slideNumber:true, transition:'slide', width:1280, height:720 });
-    deck.initialize({ plugins:[RevealHighlight] });
+deck.initialize({ plugins:[RevealHighlight, RevealNotes] });
 
     // Fallback für den Start-Button
     document.getElementById('back-link')?.addEventListener('click', function (e) {
