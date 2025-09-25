@@ -2,38 +2,23 @@
 <html lang="de">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Chain of Responsibility – Deck</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Behavioral Patterns – Kurzvortrag (Reveal.js)</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/black.css" id="theme">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/monokai.css">
   <style>
-    .footnote { font-size:.75rem; opacity:.8 }
+    .footnote { font-size:.6em; opacity:.8 }
     .two-col { display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; align-items:start }
+    .menu { display:grid; grid-template-columns: repeat(3, 1fr); gap:1.25rem; margin-top:1.5rem }
+    .card { border:1px solid #444; border-radius:12px; padding:1rem; text-align:left; background:#1e1e1e }
+    .card a { color:#fff; text-decoration:none; display:block }
     .pill { display:inline-block; padding:.25em .6em; border-radius:999px; background:#444; color:#fff; font-size:.7em; margin-right:.35em }
-    .reveal pre {
-  width:95%;
-  max-width:none;
-  height: 70vh;   /* nahezu volle Höhe */
-  margin:0 auto;
-}
-
+    .kbd { border:1px solid #666; border-bottom-width:3px; padding:.1em .35em; border-radius:6px; font-size:.8em }
+    .back { position: fixed; top: 12px; left: 12px; font-size:.8rem; z-index: 9999; }
+    .back a { color:#fff; text-decoration:none; border:1px solid #444; padding:.25rem .5rem; border-radius:8px; }
+    .reveal pre { width:95%; max-width:none; margin:0 auto; max-height:80vh; height:auto; }
     .reveal pre code { font-size:.8em; line-height:1.4; white-space:pre-wrap; word-wrap:break-word; overflow-x:auto; }
-   .back { 
-  position: fixed; 
-  top: 12px; 
-  left: 12px; 
-  font-size:.8rem; 
-  z-index: 9999;        /* neu */
-}
-.back a { 
-  color:#fff; 
-  text-decoration:none; 
-  border:1px solid #444; 
-  padding:.25rem .5rem; 
-  border-radius:8px; 
-  pointer-events:auto;  /* falls global anders gesetzt */
-}
   </style>
 </head>
 <body>
@@ -41,37 +26,53 @@
   <div class="reveal">
     <div class="slides">
 
+      <!-- Startfolie (horizontal Index 0) -->
       <section>
-        <h3>Chain of Responsibility</h3>
-        <ul>
-          <li>Request wandert entlang einer Handler-Kette.</li>
-          <li>Sender ist vom Empfänger entkoppelt.</li>
-          <li>Handler sind austauschbar/erweiterbar.</li>
-        </ul>
-      </section>
-		
-      <section>
-        <h3>Struktur</h3>
-        <ul>
-          <li><span class="pill">Handler</span> definiert <code>Handle()</code> &amp; Verweis auf <em>Next</em></li>
-          <li><span class="pill">ConcreteHandler</span> verarbeitet oder leitet weiter</li>
-          <li><span class="pill">Client</span> stößt Anfrage an</li>
-        </ul>
-	      </section>
-
-      <section>
-        <h3>Ablauf</h3>
-        <ol>
-          <li>Client erstellt Anfrage (Event, Ticket, Command).</li>
-          <li>Aktueller Handler prüft Zuständigkeit (<em>CanHandle</em>).</li>
-          <li>Wenn ungeeignet: Weiterleitung an <code>Next</code>.</li>
-          <li>Ende: verarbeitet <em>oder</em> Kette erschöpft → Fallback/Fehler.</li>
-        </ol>
-				 <img src="cor.png" alt="Chain of Responsibility Ablauf" style="max-width:60%; margin-top:1rem;">
+        <h2>Behavioral Patterns</h2>
+        <div class="menu">
+          <div class="card"><a href="#/1">Chain of Responsibility</a></div>
+          <div class="card"><a href="#/2">Iterator</a></div>
+          <div class="card"><a href="#/3">Command</a></div>
+        </div>
       </section>
 
+      <!-- ZWEIG 1: Chain of Responsibility (vertikal gestapelt) -->
       <section>
-<pre><code class="language-csharp" data-trim data-line-numbers="1-6|8-32|36-48|50-69|71-82|84-93">
+        <!-- CoR: Einführung -->
+        <section>
+          <h3>Chain of Responsibility</h3>
+          <ul>
+            <li>Request wandert entlang einer Handler-Kette.</li>
+            <li>Sender ist vom Empfänger entkoppelt.</li>
+            <li>Handler sind austauschbar/erweiterbar.</li>
+          </ul>
+        </section>
+        <!-- CoR: Struktur -->
+        <section>
+          <h3>Struktur</h3>
+            <div>
+              <ul>
+                <li><span class="pill">Handler</span> definiert <code>Handle()</code> &amp; Verweis auf <em>Next</em></li>
+                <li><span class="pill">ConcreteHandler</span> verarbeitet oder leitet weiter</li>
+                <li><span class="pill">Client</span> stößt Anfrage an</li>
+              </ul>           
+          </div>
+        </section>
+        <!-- CoR: Ablauf -->
+        <section>
+          <h3>Ablauf</h3>
+          <ol>
+            <li>Client erstellt Anfrage (Event, Ticket, Command).</li>
+            <li>Aktueller Handler prüft Zuständigkeit (<em>CanHandle</em>).</li>
+            <li>Wenn ungeeignet: Weiterleitung an <code>Next</code>.</li>
+            <li>Ende: verarbeitet <em>oder</em> Kette erschöpft → Fallback/Fehler.</li>
+          </ol>
+		  <img src="cor.png" alt="Chain of Responsibility Ablauf" style="max-width:60%; margin-top:1rem;">
+        </section>
+        <!-- CoR: Beispiel (C#) -->
+        <section>
+		<h3>Code-Beispiel (C#)</h3>
+          <pre><code class="language-csharp" data-trim data-line-numbers="1-6|8-16|18-31|36-48|50-55|57-69|71-82|84-93">
 public class Request
 {
     public string Type { get; set; }
@@ -166,42 +167,383 @@ chain.Handle(new Request { Type = "order", UserRole = "guest" });
 chain.Handle(new Request { Type = "public", Payload = "ping" });
 // [LOG] public
 //
-
-
+//
+//
+//
 </code></pre>
+        </section>
+        <!-- CoR: Vor- & Nachteile -->
+        <section>
+          <h3>Vorteile &amp; Nachteile</h3>
+          <div class="two-col">
+            <div>
+              <h4>Vorteile</h4>
+              <ul>
+                <li>Lose Kopplung von Sender &amp; Empfänger</li>
+                <li>Open/Closed: neue Handler ohne Client-Anpassung</li>
+                <li>Hohe Wiederverwendbarkeit &amp; Testbarkeit</li>
+              </ul>
+            </div>
+            <div>
+              <h4>Nachteile</h4>
+              <ul>
+                <li>Debugging schwieriger (verteilte Verantwortung)</li>
+                <li>Niemand zuständig? → Fallback/Default-Handler nötig</li>
+                <li>Performance: tiefe Ketten kosten Laufzeit</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+        <!-- CoR: Wann einsetzen? -->
+        <section>
+          <h3>Wann einsetzen?</h3>
+          <ul>
+            <li>GUI-Events (Bubbling), Middleware-Pipelines</li>
+            <li>Validierung &amp; Regelwerke (z. B. Form-Checks)</li>
+            <li>Support-/Freigabe-Workflows &amp; Eskalationen</li>
+            <li>Request-Filter: Logging → Auth → RateLimit → Business</li>
+          </ul>
+        </section>
+        <!-- CoR: Best Practices -->
+        <section>
+          <h3>Best Practices</h3>
+          <ul>
+            <li>Klare Abbruchbedingungen &amp; ein definierter Default-Handler</li>
+            <li>Eine Verantwortung pro Handler, kleine Klassen</li>
+            <li>Kette konfigurierbar machen (DI/Builder/Config)</li>
+            <li>Monitoring/Tracing (z. B. Korrelations-ID, Metriken)</li>
+          </ul>
+        </section>
+        <!-- CoR: Takeaways -->
+        <section>
+          <h3>Takeaways</h3>
+          <ul>
+            <li>Entkopplung &amp; Erweiterbarkeit stehen im Fokus</li>
+            <li>Ideal für sequentielle Prüf-/Verarbeitungsschritte</li>
+            <li>Transparenz &amp; Fallbacks einplanen</li>
+          </ul>
+        </section>
       </section>
 
+      <!-- ZWEIG 2: Iterator (vertikal gestapelt) -->
       <section>
-        <h3>Vorteile &amp; Nachteile</h3>
+        <!-- Iterator: Einführung -->
+       <section>
+        <h3>Was ist der Iterator Pattern?</h3>
+        <ul>
+          <li>Design Pattern zum Durchlaufen einer Collection</li>
+          <li>Trennt <em>Was</em> (Daten) von <em>Wie</em> (Iteration)</li>
+		  <li>Einheitlicher Zugriff ohne interne Struktur zu kennen</li>
+        </ul>
+      </section>
+      <!-- Aufbau Klassischer Iterator -->
+      <section>
+        <h3>Struktur/Aufbau</h3>
+        <ul>
+          <li><b>IIterator&lt;T&gt;</b>: Interface mit <code>HasNext()</code> und <code>Next()</code></li>
+          <li><b>Collection</b>: enthält Daten und gibt Iterator zurück</li>
+          <li><b>Konkreter Iterator</b>: implementiert IIterator<T>, merkt sich Position</li>
+          <li>von außen nutzbar, ohne die interne Struktur zu kennen</li>
+        </ul>
+      </section>
+      <!-- Folie 3: Klassischer Iterator Pattern -->
+<section>
+  <h3>1. Iterator Interface</h3>
+  <pre><code class="language-csharp">
+public interface IIterator&lt;T&gt;
+{
+    bool HasNext();
+    T Next();
+}
+  </code></pre>
+  <p>Definiert die Grundoperationen für alle Iteratoren</p>
+</section>
+<section>
+  <h3>2. Collection </h3>
+  <pre><code class="language-csharp">
+public class MusikListe
+{
+    public List&lt;string&gt; musikListe = new List&lt;string&gt; 
+        {"Musik1", "Musik2", "Musik3"};
+    
+    // Erstellt einen Iterator für diese Collection
+    public IIterator&lt;string&gt; GetIterator()
+    {
+        return new MusikIterator(this); // MusikListe übergeben
+    }
+}
+  </code></pre>
+  <p>Enthält die Daten und erstellt den Iterator</p>
+</section>
+<section>
+  <h3>3. Konkreter Iterator</h3>
+  <pre><code class="language-csharp">
+public class MusikIterator : IIterator&lt;string&gt;
+{
+    private int index = 0;         
+    private MusikListe ml;       
+    
+    public MusikIterator(MusikListe collection)
+    {ml = collection;}
+    
+    public bool HasNext()
+    {return index &lt; ml.musikListe.Count;}
+    
+    public string Next()
+    {return ml.musikListe[index++];}
+}
+  </code></pre>
+  <p>Implementiert die Iterator-Logik und merkt sich den Zustand</p>
+</section>
+<section>
+  <h3>4. Verwendung</h3>
+  <pre><code class="language-csharp">
+// Collection erstellen
+MusikListe musikListe = new MusikListe();
+
+// Iterator holen
+IIterator&lt;string&gt; iterator = musikListe.GetIterator();
+
+// Durchlaufen
+while (iterator.HasNext())
+{
+    Console.WriteLine(iterator.Next());
+}
+  </code></pre>
+  <p>Verwendet nur das Iterator-Interface</p>
+</section>
+<section>
+  <h3>Anwendungsfälle</h3>
+  <ul>
+    <li>
+      <strong>Iterator (klassisch)</strong><br>
+      Standardfall: Einfaches durchlaufen.<br>
+    </li>
+    <li>
+      <strong>Bidirectional Iterator</strong><br>
+      Für Vorwärts- und Rückwärtsdurchlauf.<br>
+      (Playlists)
+    </li>
+    <li>
+      <strong>Composite Iterator</strong><br>
+      Für verschachtelte Collections<br>
+	  (Baumstrukturen, GUI-Hierarchien)<br>
+    </li>
+  </ul>
+</section>
+      <!-- Folie 5: Vor- und Nachteile -->
+      <section>
+        <h3>Vor- und Nachteile</h3>
         <div class="two-col">
           <div>
             <h4>Vorteile</h4>
             <ul>
-              <li>Lose Kopplung von Sender &amp; Empfänger</li>
-              <li>Open/Closed: neue Handler ohne Client-Anpassung</li>
-              <li>Hohe Wiederverwendbarkeit &amp; Testbarkeit</li>
+              <li>Einheitlicher Zugriff auf verschiedene Collections</li>
+              <li>Mehrere Iteratoren parallel möglich</li>
+              <li>Flexible Iterationsstrategien</li>
             </ul>
           </div>
           <div>
             <h4>Nachteile</h4>
             <ul>
-              <li>Debugging schwieriger (verteilte Verantwortung)</li>
-              <li>Niemand zuständig? → Fallback/Default-Handler nötig</li>
-              <li>Performance: tiefe Ketten kosten Laufzeit</li>
+              <li>Zusätzliche Klassen und Interface nötig</li>
+			  <li>Abhängigkeit  von der Collection</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+      </section>
+
+      <!-- ZWEIG 3: Command (vertikal gestapelt) -->
+      <section>
+        <!-- Command: Einführung -->
+     <section>
+        <h3>Command</h3>
+        <ul>
+          <li>Kapselt eine Anfrage als Objekt (<em>Befehl</em>).</li>
+          <li>Entkoppelt Aufrufer (<em>Invoker</em>) von Empfänger (<em>Receiver</em>).</li>
+		  <li>Aktionen wie Daten behandeln: speicherbar, übertragbar, rückgängig machbar</li>
+          <li>Ermöglicht <strong>Undo/Redo</strong>, Warteschlangen, Logging, Makros.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h3>Struktur</h3>
+        <div class="two-col">
+          <div>
+            <ul>
+              <li><span class="pill">Invoker</span>: triggert Befehle, verwaltet History</li>
+              <li><span class="pill">Command</span>: Interface mit <code>execute()</code>, optional <code>undo()</code></li>
+              <li><span class="pill">ConcreteCommand</span>: ruft Methoden am <em>Receiver</em> auf</li>
+              <li><span class="pill">Receiver</span>: kennt die eigentliche Logik</li>
+            </ul>
+          </div>
+          <div>
+<!-- </div><pre><code class="nohighlight">Client → Invoker → Command → Receiver
+             ↑           ↖ Undo/Redo (History)</code></pre> -->
+			 <img src="solution3-en.png">
+          </div>
+        </div>
+      </section>
+
+      <section data-auto-animate>
+        <h3>Beispiel (C#) – Undo/Redo</h3>
+<pre data-id="code-animation"><code class="hljs language-csharp" data-trim data-line-numbers="|6-10|31|43-51|54,58-63|84-96">
+using System;
+using System.Collections.Generic;
+
+public class Program
+{
+	public interface ICommand
+	{
+		void Execute();
+		void Undo();
+	}
+
+	public class TextDocument
+	{
+		public string Content { get; private set; }
+        public TextDocument()
+        {
+            Content = "";
+        }
+
+        public void Insert(int pos, string text)
+        {
+            Content = Content.Insert(pos, text);
+        }
+
+        public void Delete(int pos, int length)
+        {
+            Content = Content.Remove(pos, length);
+        }
+	}
+
+	public class InsertTextCommand : ICommand
+	{
+		private readonly TextDocument _doc;
+		private readonly int _pos;
+		private readonly string _text;
+		public InsertTextCommand(TextDocument doc, int pos, string text)
+    	{
+    	    _doc = doc;
+    	    _pos = pos;
+    	    _text = text;
+    	}
+
+    	public void Execute()
+    	{
+    	    _doc.Insert(_pos, _text);
+   		}
+
+   		public void Undo()
+   		{
+    	    _doc.Delete(_pos, _text.Length);
+    	}
+	}
+
+	public class Invoker
+	{
+		private readonly Stack&lt;ICommand&gt; _undo = new();
+		private readonly Stack&lt;ICommand&gt; _redo = new();
+		public void Do(ICommand cmd)
+		{
+			cmd.Execute();
+			_undo.Push(cmd);
+			_redo.Clear();
+		}
+
+		public void Undo()
+		{
+			if (_undo.Count == 0)
+				return;
+			var cmd = _undo.Pop();
+			cmd.Undo();
+			_redo.Push(cmd);
+		}
+
+		public void Redo()
+		{
+			if (_redo.Count == 0)
+				return;
+			var cmd = _redo.Pop();
+			cmd.Execute();
+			_undo.Push(cmd);
+		}
+	}
+
+	public static void Main()
+	{
+		// Verwendung
+		var doc = new TextDocument();
+		var inv = new Invoker();
+		inv.Do(new InsertTextCommand(doc, 0, "Hello"));
+		inv.Do(new InsertTextCommand(doc, 5, " World"));
+		Console.WriteLine(doc.Content); // Hello World
+		inv.Undo();
+		Console.WriteLine(doc.Content); // Hello
+		inv.Redo();
+		Console.WriteLine(doc.Content); // Hello World
+	}
+}
+</code></pre>
+        <!-- <p class="footnote">Befehle kapseln Operation + Zustand für Undo</p> -->
+      </section>
+	  
+	  <section>
+        <h3>Vor- und Nachteile</h3>
+        <div class="two-col">
+          <div>
+            <h4>Vorteile</h4>
+            <ul>
+              <li>Lose Kopplung der Komponenten</li>
+			  <li>Erweiterbarkeit</li>
+			  <li>Vielfältige Einsatzmöglichkeiten</li>
+            </ul>
+          </div>
+          <div>
+            <h4>Nachteile</h4>
+            <ul>
+              <li>Viele kleine Klassen / Objekte</li>
+			  <li>Manchmal Overhead</li>
             </ul>
           </div>
         </div>
       </section>
 
       <section>
-        <h3>Wann einsetzen? • Best Practices</h3>
+        <h3>Einsatz / Varianten</h3>
+        <div class="two-col">
+          <div>
+            <h4>Einsatz</h4>
+            <ul>
+              <li>Undo/Redo in Editoren & UIs</li>
+              <li>Job-/Task-Queues</li>
+			  <li>Retry/Dead-Letter-Queues</li>
+              <li>Logging & Replays</li>
+            </ul>
+          </div>
+          <div>
+            <h4>Varianten</h4>
+            <ul>
+              <li>Makro-Command (Komposition mehrerer Befehle)</li>
+              <li>Transaktions-Commands</li>
+              <li>Asynchron (Queue, Scheduler)</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+      </section>
+
+      <!-- Abschlussfolie -->
+      <section>
+        <h3>Takeaways</h3>
         <ul>
-          <li>GUI-Events (Bubbling), Middleware-Pipelines</li>
-          <li>Validierung &amp; Regelwerke (z. B. Form-Checks)</li>
-          <li>Support-/Freigabe-Workflows &amp; Eskalationen</li>
-          <li>Request-Filter: Logging → Auth → RateLimit → Business</li>
-          <li><strong>Best Practices:</strong> Default-Handler, kleine Klassen, konfigurierbare Kette, Monitoring/Tracing</li>
+          <li>Chain: Weiterreichen bis zuständig</li>
+          <li>Iterator: Traversierung entkoppelt &amp; austauschbar</li>
+          <li>Command: Aktionen kapseln • Undo/Redo • Queues</li>
         </ul>
+        <p class="footnote">Tipp: Kombinierbar mit DI, Pipelines, Events &amp; Messaging</p>
       </section>
 
     </div>
@@ -209,20 +551,10 @@ chain.Handle(new Request { Type = "public", Payload = "ping" });
 
   <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/highlight.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/notes/notes.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/notes/notes.js"></script>
   <script>
-    const deck = new Reveal();
-    deck.initialize({
-      hash: true,
-      slideNumber: true,
-      transition: 'slide',
-      width: 1280,
-      height: 720,
-      plugins: [ RevealHighlight, RevealNotes ],
-      highlight: {
-        escapeHTML: true
-      }
-    });
+    const deck = new Reveal({ hash:true, slideNumber:true, transition:'slide', width:1280, height:720, plugins:[RevealHighlight, RevealNotes] });
+    deck.initialize();
   </script>
 </body>
 </html>
